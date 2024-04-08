@@ -6,6 +6,7 @@
 //
 
 import ComposableArchitecture
+import Foundation
 
 // @Reducer - 외부에서의 액션을 수신 (상태 관리자)
 @Reducer
@@ -15,8 +16,9 @@ struct CounterFeature {
     @ObservableState
     struct State {
         // 상태관리 변수
-        var count = 0
-        
+        var count: Int = 0
+        var fact: String? = nil
+        var isLoading = false
     }
     
     // Action - 액션을 정의
@@ -25,6 +27,8 @@ struct CounterFeature {
     enum Action {
         
         case decrementButtonTapped
+        case factButtonTapped
+        case factResponse(String)
         case incrementButtonTapped
         
     }
@@ -36,11 +40,33 @@ struct CounterFeature {
             switch action {
                 case .decrementButtonTapped:
                     state.count -= 1
-                    print("-수신")
+                    state.fact = nil
                     return .none
+                    
+                // 네트워크 작업
+                case .factButtonTapped:
+                    state.fact = nil
+                    state.isLoading = true
+                    
+                    // 부작용1: 비동기 함수 호출 시 동시성을 지원하지 않는다.
+                    // 부작용2: 오류 처리를 하지 않는다.
+                    // 따라서 직접 네트워크 처리를 하지않고 작업을 핸들 하여 전달한다.
+                    return .run { [count = state.count] send in
+                        let (data, _) = try await URLSession.shared
+                            .data(from: URL(string: "http://numbersapi.com/\(count)")!)
+                        let fact = String(decoding: data, as: UTF8.self)
+                        await send(.factResponse(fact))
+                    }
+                    
+                // 네트워크 작업 내에서 직접적으로 값 주입이 힘든 이유로 만들어준 case
+                case .factResponse(let fact):
+                    state.fact = fact
+                    state.isLoading = false
+                    return .none
+                    
                 case .incrementButtonTapped:
                     state.count += 1
-                    print("+수신")
+                    state.fact = nil
                     return .none
             }
         }
