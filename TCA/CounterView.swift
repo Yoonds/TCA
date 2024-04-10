@@ -20,7 +20,7 @@ struct CounterView: View {
             Text("\(store.count)")
                 .font(.largeTitle)
                 .padding()
-                .background(Color.gray)
+                .background(Color.black.opacity(0.1))
                 .cornerRadius(10)
             HStack {
                 Button("-") {
@@ -28,7 +28,7 @@ struct CounterView: View {
                 }
                 .font(.largeTitle)
                 .padding()
-                .background(Color.gray)
+                .background(Color.black.opacity(0.1))
                 .cornerRadius(10)
                 
                 Button("+") {
@@ -36,9 +36,17 @@ struct CounterView: View {
                 }
                 .font(.largeTitle)
                 .padding()
-                .background(Color.gray)
+                .background(Color.black.opacity(0.1))
                 .cornerRadius(10)
             }
+            Button(store.isTimerRunning ? "Stop timer" : "Start timer") {
+                   store.send(.toggleTimerButtonTapped)
+                 }
+                 .font(.largeTitle)
+                 .padding()
+                 .background(Color.black.opacity(0.1))
+                 .cornerRadius(10)
+            
             // 네트워크 요청 예정 버튼
             Button("Fact") {
               store.send(.factButtonTapped)

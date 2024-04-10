@@ -19,6 +19,7 @@ struct CounterFeature {
         var count: Int = 0
         var fact: String? = nil
         var isLoading = false
+        var isTimerRunning = false
     }
     
     // Action - 액션을 정의
@@ -30,6 +31,14 @@ struct CounterFeature {
         case factButtonTapped
         case factResponse(String)
         case incrementButtonTapped
+        case titmerTick
+        case toggleTimerButtonTapped
+        
+    }
+    
+    enum CancelID {
+        
+        case timer
         
     }
     
@@ -68,6 +77,26 @@ struct CounterFeature {
                     state.count += 1
                     state.fact = nil
                     return .none
+                    
+                case .titmerTick:
+                    state.count += 1
+                    state.fact = nil
+                    return .none
+                    
+                case .toggleTimerButtonTapped:
+                    state.isTimerRunning.toggle()
+                    if state.isTimerRunning {
+                        return .run { send in
+                            while true {
+                                // 무한루프 1초 휴식 후 timerTick 동작
+                                try await Task.sleep(for: .seconds(1))
+                                await send(.titmerTick)
+                            }
+                        }
+                        .cancellable(id: CancelID.timer) // cancle이 가능하도록 세팅
+                    } else {
+                        return .cancel(id: CancelID.timer) // cancle 동작
+                    }
             }
         }
     }
