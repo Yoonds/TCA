@@ -31,7 +31,7 @@ struct CounterFeature {
         case factButtonTapped
         case factResponse(String)
         case incrementButtonTapped
-        case titmerTick
+        case timerTick
         case toggleTimerButtonTapped
         
     }
@@ -78,7 +78,7 @@ struct CounterFeature {
                     state.fact = nil
                     return .none
                     
-                case .titmerTick:
+                case .timerTick:
                     state.count += 1
                     state.fact = nil
                     return .none
@@ -90,7 +90,7 @@ struct CounterFeature {
                             while true {
                                 // 무한루프 1초 휴식 후 timerTick 동작
                                 try await Task.sleep(for: .seconds(1))
-                                await send(.titmerTick)
+                                await send(.timerTick)
                             }
                         }
                         .cancellable(id: CancelID.timer) // cancle이 가능하도록 세팅
